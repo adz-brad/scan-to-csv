@@ -2,11 +2,9 @@
   "main": "node_modules/expo/AppEntry.js",
   "keywords": [
     "react",
-    "expo",
-    "template",
-    "nativebase"
+    "expo"
   ],
-  "license": "MIT",
+  "license": "0SBD",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -30,10 +28,7 @@
   "devDependencies": {
     "@babel/core": "^7.9.0"
   },
-  "bugs": {
-    "url": "https://github.com/GeekyAnts/nativebase-templates/issues"
-  },
-  "homepage": "https://github.com/GeekyAnts/nativebase-templates#readme",
-  "author": "Aditya Jamuar",
-  "private": true
+  "homepage": "https://github.com/brad-nst/scan-to-csv",
+  "author": "Brad S",
+  "private": false
 }
