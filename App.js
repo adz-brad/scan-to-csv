@@ -1,71 +1,166 @@
-import React from "react";
-import {
-  Text,
-  Link,
-  HStack,
-  Center,
-  Heading,
-  Switch,
-  useColorMode,
-  NativeBaseProvider,
-  extendTheme,
-  VStack,
-  Code,
-} from "native-base";
-import NativeBaseIcon from "./components/NativeBaseIcon";
+import React, { useEffect, useState } from "react"
+import { Dimensions } from 'react-native'
+import { NativeBaseProvider, Icon, IconButton, HStack } from "native-base"
+import { MaterialIcons } from '@expo/vector-icons'
+import { TopNav, BottomNav, NavButton } from "./components/nav"
+import { Main } from './components/layout'
+import { ItemList, NewItem } from './components/item'
+import { RequiredInput } from "./components/form"
 
-// Define the config
-const config = {
-  useSystemColorMode: false,
-  initialColorMode: "dark",
-};
+const App = () => {
 
-// extend the theme
-export const theme = extendTheme({ config });
+  const ItemButton = ({ onPress, icon, color, hoverPress, ml, mr }) => {
+    return(
+        <IconButton
+            onPress={onPress}
+            icon={<Icon as={icon}/>} 
+            borderRadius="full"
+            bg={color}
+            shadow={3}
+            ml={ml}
+            mr={mr}
+            _icon={{
+            color: "coolGray.100",
+            size: "sm",
+            }}
+            _hover={{
+            bg: `${hoverPress}`,
+            shadow: "3"
+            }}
+            _pressed={{
+            bg: `${hoverPress}`,
+            shadow: "3"
+            }}
+            _ios={{
+            _icon: {
+                size: "md",
+            },
+            }}
+        />
+    )
+}
 
-export default function App() {
+  let deviceWidth = Dimensions.get('window').width
+  let deviceHeight = Dimensions.get('window').height
+  
+  const [ newItem, setNewItem ] = useState(false);
+
+  const [ itemList, setItemList ] = useState([]);
+
+  const [ lotNumber, setLotNumber ] = useState('');
+
+  const [ itemName, setItemName ] = useState('');
+ 
+  const [ itemID, setItemID ] = useState('');
+  
+  useEffect(() => {
+    setItemID(String(`Lot-${lotNumber}-${Math.floor(Math.random() * 10000000)}`).replace(/\s+/g, ''))
+  }, [ lotNumber ] );
+
+  const [ itemObject, setItemObject ] = useState({});
+
+  useEffect(() => {
+    setItemObject({
+      itemID: itemID,
+      lotNumber: lotNumber,
+      itemName: itemName
+    })
+  }, [ lotNumber, itemName ])
+
+  useEffect(() => {
+    console.log(itemID, lotNumber, itemName);
+  }, [ lotNumber, itemName ])
+
+  const addItem = async () => {
+    console.log(lotNumber);
+    await setItemList(itemList.concat(itemObject));
+    setNewItem(false)
+  }
+
   return (
+
     <NativeBaseProvider>
-      <Center
-        _dark={{ bg: "blueGray.900" }}
-        _light={{ bg: "blueGray.50" }}
-        px={4}
-        flex={1}
+
+      <TopNav
+        height={deviceHeight*0.12}
+        width={deviceWidth}
+      />
+
+      <Main
+        top={deviceHeight*0.12 + 4}
+        height={deviceHeight*0.76}
+        width={deviceWidth}
       >
-        <VStack space={5} alignItems="center">
-          <NativeBaseIcon />
-          <Heading size="lg">Welcome to NativeBase</Heading>
-          <HStack space={2} alignItems="center">
-            <Text>Edit</Text>
-            <Code>App.js</Code>
-            <Text>and save to reload.</Text>
+        <ItemList items={itemList} width={deviceWidth} />
+
+        <NewItem 
+          onOpen={newItem} 
+          onClose={() => setNewItem(false)} 
+          addItem={() => addItem()}
+        >
+          <HStack>
+            <RequiredInput
+              type="number"
+              keyboardType="numeric"
+              label="Item Lot Number"
+              icon={<MaterialIcons name="tag" />}
+              placeholder="Lot Number"
+              errorMessage="Lot number is required."
+              value={lotNumber}
+              onChange={setLotNumber}
+            />
+            <ItemButton 
+                            icon={<MaterialIcons name="photo-camera" />}
+                            color="green.700"
+                            hoverPress="green.600:alpha.60"
+                            mx="2"
+                        />
           </HStack>
-          <Link href="https://docs.nativebase.io" isExternal>
-            <Text color="primary.500" underline fontSize={"xl"}>
-              Learn NativeBase
-            </Text>
-          </Link>
-          <ToggleDarkMode />
-        </VStack>
-      </Center>
+
+          <HStack>
+            <RequiredInput
+              type="text"
+              label="Item Name"
+              icon={<MaterialIcons name="tag" />}
+              placeholder="Item Name"
+              errorMessage="Item name is required."
+              value={itemName}
+              onChange={setItemName}
+            />
+            <ItemButton 
+                            icon={<MaterialIcons name="photo-camera" />}
+                            color="green.700"
+                            hoverPress="green.600:alpha.60"
+                            mx="2"
+                        />
+          </HStack>
+
+        </NewItem>
+
+      </Main>
+
+      <BottomNav height={deviceHeight*0.1} width={deviceWidth}>
+        <NavButton
+          icon={<MaterialIcons name="create" />} 
+          onPress={() => setNewItem(true)}
+        />
+        <NavButton
+          icon={<MaterialIcons name="playlist-add" />} 
+          onPress={() => console.log('Import CSV')}
+        />
+        <NavButton
+          icon={<MaterialIcons name="save" />} 
+          onPress={() => console.log('Export CSV')}
+        />
+        <NavButton
+          icon={<MaterialIcons name="forward-to-inbox" />} 
+          onPress={() => console.log('Send CSV')}
+        />
+      </BottomNav>
+
     </NativeBaseProvider>
-  );
+
+  )
 }
 
-// Color Switch Component
-function ToggleDarkMode() {
-  const { colorMode, toggleColorMode } = useColorMode();
-  return (
-    <HStack space={2} alignItems="center">
-      <Text>Dark</Text>
-      <Switch
-        isChecked={colorMode === "light" ? true : false}
-        onToggle={toggleColorMode}
-        aria-label={
-          colorMode === "light" ? "switch to dark mode" : "switch to light mode"
-        }
-      />
-      <Text>Light</Text>
-    </HStack>
-  );
-}
+export default App;
